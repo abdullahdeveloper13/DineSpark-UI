@@ -1,37 +1,108 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { 
+  menuItems, categories, reservations, messages,
+  type MenuItem, type InsertMenuItem,
+  type Category, type InsertCategory,
+  type Reservation, type InsertReservation,
+  type Message, type InsertMessage
+} from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Menu
+  getCategories(): Promise<Category[]>;
+  getMenuItems(): Promise<MenuItem[]>;
+  getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  createMenuItem(item: InsertMenuItem): Promise<MenuItem>;
+
+  // Reservations
+  createReservation(reservation: InsertReservation): Promise<Reservation>;
+  getReservation(id: number): Promise<Reservation | undefined>;
+
+  // Contact
+  createMessage(message: InsertMessage): Promise<Message>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private categories: Map<number, Category>;
+  private menuItems: Map<number, MenuItem>;
+  private reservations: Map<number, Reservation>;
+  private messages: Map<number, Message>;
+  private categoryId: number;
+  private menuItemId: number;
+  private reservationId: number;
+  private messageId: number;
 
   constructor() {
-    this.users = new Map();
+    this.categories = new Map();
+    this.menuItems = new Map();
+    this.reservations = new Map();
+    this.messages = new Map();
+    this.categoryId = 1;
+    this.menuItemId = 1;
+    this.reservationId = 1;
+    this.messageId = 1;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values());
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+  async getMenuItems(): Promise<MenuItem[]> {
+    return Array.from(this.menuItems.values());
+  }
+
+  async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
+    return Array.from(this.menuItems.values()).filter(
+      (item) => item.categoryId === categoryId
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const id = this.categoryId++;
+    const category: Category = { ...insertCategory, id };
+    this.categories.set(id, category);
+    return category;
+  }
+
+  async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
+    const id = this.menuItemId++;
+    const item: MenuItem = { 
+      ...insertItem, 
+      id,
+      dietary: insertItem.dietary || [], 
+      isPopular: insertItem.isPopular || false,
+      available: insertItem.available || true
+    };
+    this.menuItems.set(id, item);
+    return item;
+  }
+
+  async createReservation(insertReservation: InsertReservation): Promise<Reservation> {
+    const id = this.reservationId++;
+    const reservation: Reservation = { 
+      ...insertReservation, 
+      id,
+      status: "pending",
+      createdAt: new Date(),
+      message: insertReservation.message || null 
+    };
+    this.reservations.set(id, reservation);
+    return reservation;
+  }
+
+  async getReservation(id: number): Promise<Reservation | undefined> {
+    return this.reservations.get(id);
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const id = this.messageId++;
+    const message: Message = { 
+      ...insertMessage, 
+      id,
+      createdAt: new Date() 
+    };
+    this.messages.set(id, message);
+    return message;
   }
 }
 
