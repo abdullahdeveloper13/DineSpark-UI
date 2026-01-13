@@ -5,6 +5,8 @@ import {
   type Reservation, type InsertReservation,
   type Message, type InsertMessage
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Menu
@@ -20,6 +22,75 @@ export interface IStorage {
 
   // Contact
   createMessage(message: InsertMessage): Promise<Message>;
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+export class DbStorage implements IStorage {
+  // Menu
+  async getCategories(): Promise<Category[]> {
+    return db.select().from(categories);
+  }
+
+  async getMenuItems(): Promise<MenuItem[]> {
+    return db.select().from(menuItems);
+  }
+
+  async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
+    return db.select().from(menuItems).where(eq(menuItems.categoryId, categoryId));
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [created] = await db.insert(categories).values(insertCategory).returning();
+    return created;
+  }
+
+  async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
+    const dietary = normalizeStringArray((insertItem as any).dietary);
+
+    const [created] = await db
+      .insert(menuItems)
+      .values({
+        ...insertItem,
+        dietary,
+        isPopular: (insertItem as any).isPopular ?? false,
+        available: (insertItem as any).available ?? true,
+      })
+      .returning();
+
+    return created;
+  }
+
+  // Reservations
+  async createReservation(insertReservation: InsertReservation): Promise<Reservation> {
+    const [created] = await db
+      .insert(reservations)
+      .values({
+        ...insertReservation,
+        message: (insertReservation as any).message ?? null,
+      })
+      .returning();
+
+    return created;
+  }
+
+  async getReservation(id: number): Promise<Reservation | undefined> {
+    const [reservation] = await db
+      .select()
+      .from(reservations)
+      .where(eq(reservations.id, id))
+      .limit(1);
+    return reservation;
+  }
+
+  // Contact
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const [created] = await db.insert(messages).values(insertMessage).returning();
+    return created;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -66,12 +137,13 @@ export class MemStorage implements IStorage {
 
   async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
     const id = this.menuItemId++;
+    const dietary = normalizeStringArray((insertItem as any).dietary);
     const item: MenuItem = { 
       ...insertItem, 
       id,
-      dietary: insertItem.dietary || [], 
-      isPopular: insertItem.isPopular || false,
-      available: insertItem.available || true
+      dietary,
+      isPopular: (insertItem as any).isPopular ?? false,
+      available: (insertItem as any).available ?? true
     };
     this.menuItems.set(id, item);
     return item;
@@ -106,4 +178,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DbStorage();

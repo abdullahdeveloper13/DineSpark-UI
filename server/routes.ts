@@ -5,7 +5,7 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 
 export async function registerRoutes(
-  httpServer: Server,
+  httpServer: any,
   app: Express
 ): Promise<Server> {
   // Menu Routes
