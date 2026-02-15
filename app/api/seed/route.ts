@@ -184,7 +184,7 @@ async function seedDatabase() {
   await storage.createMenuItem({
     categoryId: drinks.id,
     name: "Signature Cocktail",
-    description: "Our Chef's special cocktail with premium spirits.",
+    description: "Our Chef's special cocktail  with premium spirits.",
     price: 1500,
     imageUrl: "/signature.png",
     isPopular: true,
