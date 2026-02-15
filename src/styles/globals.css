@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Charcoal & Gold Palette */
+  --background: 30 15% 96%;
+  --foreground: 220 10% 10%;
+  
+  --primary: 35 30% 20%;      /* Warm dark charcoal/brown */
+  --primary-foreground: 40 20% 97%;
+
+  --secondary: 40 20% 90%;
+  --secondary-foreground: 35 30% 20%;
+
+  --muted: 40 10% 94%;
+  --muted-foreground: 220 8% 46%;
+
+  --accent: 43 74% 49%;       /* Gold accent */
+  --accent-foreground: 35 30% 15%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 35 15% 85%;
+  --input: 35 15% 85%;
+  --ring: 43 74% 49%;         /* Focus ring is gold */
+
+  --radius: 0.5rem;
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+.dark {
+  --background: 220 10% 10%;
+  --foreground: 30 15% 96%;
+  
+  --primary: 40 20% 97%;
+  --primary-foreground: 35 30% 20%;
+
+  --secondary: 220 10% 16%;
+  --secondary-foreground: 30 15% 96%;
+
+  --muted: 220 10% 16%;
+  --muted-foreground: 220 8% 60%;
+
+  --accent: 43 74% 49%;
+  --accent-foreground: 35 30% 15%;
+  
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 220 10% 16%;
+  --input: 220 10% 16%;
+  --ring: 43 74% 49%;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-accent/30;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    @apply font-semibold tracking-tight;
+  }
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

@@ -1,6 +1,12 @@
 node_modules
 dist
 .DS_Store
-server/public
-vite.config.ts.*
+.next
+out
+build
 *.tar.gz
+.env.local
+.env.*.local
+.cache
+
+/generated/prisma
