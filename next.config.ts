@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
+  cacheHandler: undefined,
+  cacheMaxMemorySize: 0,
   images: {
     remotePatterns: [
       {
@@ -8,6 +13,10 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
     ],
+  },
+  webpack: (config: any) => {
+    config.cache = false;
+    return config;
   },
 };
 

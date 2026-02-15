@@ -33,9 +33,9 @@ export function useCreateReservation() {
       name: string;
       email: string;
       phone: string;
-      date: string;
+      date: Date;
       time: string;
-      guests: number;
+      partySize: number;
       message?: string;
     }) => {
       const res = await fetch("/api/reservations", {
@@ -79,12 +79,7 @@ export function useSendMessage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          subject: data.subject,
-          content: data.message, // Convert 'message' to 'content' for API
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!res.ok) {

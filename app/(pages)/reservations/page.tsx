@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 // Extend the schema to handle form inputs nicely (date as string initially)
 const formSchema = insertReservationSchema.extend({
@@ -41,8 +42,13 @@ export default function ReservationsPage() {
 
   const onSubmit = (data: FormValues) => {
     const payload = {
-      ...data,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
       date: new Date(data.date), // Convert string to Date object
+      time: data.time,
+      partySize: data.partySize, // Use correct field name
+      message: data.message || undefined,
     };
     
     createReservation.mutate(payload, {
@@ -165,7 +171,7 @@ export default function ReservationsPage() {
                     {...form.register("partySize")}
                     className="w-full px-4 py-3 rounded-lg bg-muted/30 border border-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all appearance-none"
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num: number) => (
                       <option key={num} value={num}>{num} {num === 1 ? 'Person' : 'People'}</option>
                     ))}
                   </select>
@@ -258,9 +264,11 @@ export default function ReservationsPage() {
               <p className="text-muted-foreground mb-6 text-sm">
                 Planning a private event or corporate dinner? We have a private dining room that seats up to 40 guests.
               </p>
+              <Link href="/">
               <button className="w-full py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors">
                 View Event Info
               </button>
+              </Link>
             </div>
           </div>
         </div>

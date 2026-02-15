@@ -67,7 +67,15 @@ export class DbStorage implements IStorage {
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
     try {
-      const [created] = await db.insert(categories).values(insertCategory).returning();
+      const now = new Date();
+      const [created] = await db
+        .insert(categories)
+        .values({
+          ...insertCategory,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning();
       return created;
     } catch (error) {
       console.error("DbStorage.createCategory failed:", error);
@@ -77,15 +85,22 @@ export class DbStorage implements IStorage {
 
   async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
     try {
+      const now = new Date();
       const dietary = normalizeStringArray((insertItem as any).dietary);
 
       const [created] = await db
         .insert(menuItems)
         .values({
-          ...insertItem,
+          name: insertItem.name,
+          description: insertItem.description,
+          price: insertItem.price,
+          categoryId: insertItem.categoryId,
+          imageUrl: insertItem.imageUrl,
           dietary,
           isPopular: (insertItem as any).isPopular ?? false,
           available: (insertItem as any).available ?? true,
+          createdAt: now,
+          updatedAt: now,
         })
         .returning();
 
@@ -99,11 +114,14 @@ export class DbStorage implements IStorage {
   // Reservations
   async createReservation(insertReservation: InsertReservation): Promise<Reservation> {
     try {
+      const now = new Date();
       const [created] = await db
         .insert(reservations)
         .values({
           ...insertReservation,
           message: (insertReservation as any).message ?? null,
+          createdAt: now,
+          updatedAt: now,
         })
         .returning();
 
@@ -131,7 +149,15 @@ export class DbStorage implements IStorage {
   // Contact
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     try {
-      const [created] = await db.insert(messages).values(insertMessage).returning();
+      const now = new Date();
+      const [created] = await db
+        .insert(messages)
+        .values({
+          ...insertMessage,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning();
       return created;
     } catch (error) {
       console.error("DbStorage.createMessage failed:", error);
@@ -305,10 +331,11 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Initialize storage with fallback
-let storageInstance: IStorage = new MemStorage();
+// Initialize storage
+let storageInstance: IStorage | undefined;
+let initialized = false;
 
-async function initializeStorage() {
+const initPromise = (async () => {
   try {
     // Test database connection
     await db.select().from(categories).limit(1);
@@ -319,9 +346,59 @@ async function initializeStorage() {
     console.warn("Error:", (error as Error).message);
     storageInstance = new MemStorage();
   }
+  initialized = true;
+})();
+
+// Create a proxy that waits for initialization
+class StorageProxy {
+  private async ensureInitialized() {
+    if (!initialized) {
+      await initPromise;
+    }
+    if (!storageInstance) {
+      throw new Error("Storage failed to initialize");
+    }
+  }
+
+  async getCategories() {
+    await this.ensureInitialized();
+    return storageInstance!.getCategories();
+  }
+
+  async getMenuItems() {
+    await this.ensureInitialized();
+    return storageInstance!.getMenuItems();
+  }
+
+  async getMenuItemsByCategory(categoryId: number) {
+    await this.ensureInitialized();
+    return storageInstance!.getMenuItemsByCategory(categoryId);
+  }
+
+  async createCategory(category: InsertCategory) {
+    await this.ensureInitialized();
+    return storageInstance!.createCategory(category);
+  }
+
+  async createMenuItem(item: InsertMenuItem) {
+    await this.ensureInitialized();
+    return storageInstance!.createMenuItem(item);
+  }
+
+  async createReservation(reservation: InsertReservation) {
+    await this.ensureInitialized();
+    return storageInstance!.createReservation(reservation);
+  }
+
+  async getReservation(id: number) {
+    await this.ensureInitialized();
+    return storageInstance!.getReservation(id);
+  }
+
+  async createMessage(message: InsertMessage) {
+    await this.ensureInitialized();
+    return storageInstance!.createMessage(message);
+  }
 }
 
-// Initialize immediately
-initializeStorage();
-
-export const storage = storageInstance;
+export const storage = new StorageProxy() as IStorage;

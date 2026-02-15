@@ -1,36 +1,21 @@
-import { prisma } from "@/lib/prisma";
+import { storage } from "../../../lib/storage";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { insertMessageSchema } from "@shared/schema";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, subject, content } = await req.json();
-
-    // Validate required fields
-    if (!name || !email || !subject || !content) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 }
-      );
-    }
-
+    const body = await req.json();
+    console.log("Contact payload:", body);
+    
+    // Validate input
+    console.log("Validating message schema...");
+    const input = insertMessageSchema.parse(body);
+    console.log("Validation passed, creating message...");
+    
     // Create message in database
-    const message = await prisma.message.create({
-      data: {
-        name,
-        email,
-        subject,
-        content,
-      },
-    });
+    const message = await storage.createMessage(input);
+    console.log("Message created successfully:", message);
 
     return NextResponse.json(
       {
@@ -41,9 +26,29 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Validation error:", error.errors);
+      return NextResponse.json(
+        {
+          message: error.errors[0].message,
+          field: error.errors[0].path.join("."),
+        },
+        { status: 400 }
+      );
+    }
+    
     console.error("Contact API Error:", error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    const errorStack = error instanceof Error ? error.stack : "";
+    
+    console.error("Full error details:", {
+      message: errorMessage,
+      stack: errorStack,
+      type: typeof error,
+    });
+    
     return NextResponse.json(
-      { error: "Failed to send message" },
+      { error: `Failed to send message: ${errorMessage}` },
       { status: 500 }
     );
   }
@@ -52,18 +57,11 @@ export async function POST(req: NextRequest) {
 // Optional: GET endpoint to retrieve messages (admin only)
 export async function GET(req: NextRequest) {
   try {
-    const messages = await prisma.message.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
+    // This endpoint is for admin purposes - would need authentication
+    // For now, just return a warning
     return NextResponse.json(
-      {
-        success: true,
-        data: messages,
-      },
-      { status: 200 }
+      { message: "Not implemented - requires authentication" },
+      { status: 403 }
     );
   } catch (error) {
     console.error("Get Messages Error:", error);

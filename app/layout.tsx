@@ -7,6 +7,9 @@ import "@/styles/globals.css";
 export const metadata: Metadata = {
   title: "DineSpark - Restaurant Management System",
   description: "Discover dining excellence with DineSpark",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

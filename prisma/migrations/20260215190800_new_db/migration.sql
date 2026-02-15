@@ -34,11 +34,11 @@ CREATE TABLE "Reservation" (
     "phone" VARCHAR(20) NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
     "time" VARCHAR(10) NOT NULL,
-    "guests" INTEGER NOT NULL,
+    "party_size" INTEGER NOT NULL,
     "message" TEXT,
     "status" TEXT NOT NULL DEFAULT 'pending',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Reservation_pkey" PRIMARY KEY ("id")
 );
@@ -49,9 +49,9 @@ CREATE TABLE "Message" (
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
     "subject" VARCHAR(255) NOT NULL,
-    "content" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "message" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );

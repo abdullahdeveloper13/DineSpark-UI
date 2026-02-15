@@ -17,7 +17,7 @@ export default function MenuPage() {
   }
 
   const filteredItems = menuItems?.filter(
-    item => selectedCategory === null || item.categoryId === selectedCategory
+    (item: any) => selectedCategory === null || item.categoryId === selectedCategory
   );
 
   return (
@@ -51,7 +51,7 @@ export default function MenuPage() {
           </div>
         ) : (
           <div className="flex flex-wrap justify-center gap-4 mb-16">
-            {categories?.map((category) => (
+            {categories?.map((category: any) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
@@ -80,7 +80,7 @@ export default function MenuPage() {
             className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-5xl mx-auto"
           >
             <AnimatePresence mode="popLayout">
-              {filteredItems?.map((item) => (
+              {filteredItems?.map((item: any) => (
                 <MenuCard key={item.id} item={item} />
               ))}
             </AnimatePresence>

@@ -10,7 +10,7 @@ export default function Home() {
   const { data: menuItems, isLoading } = useMenu();
 
   // Filter for featured items (popular)
-  const featuredItems = menuItems?.filter(item => item.isPopular).slice(0, 3) || [];
+  const featuredItems = menuItems?.filter((item: any) => item.isPopular).slice(0, 3) || [];
 
   return (
     <div className="min-h-screen">
@@ -153,7 +153,7 @@ export default function Home() {
                 <div key={i} className="h-48 bg-muted animate-pulse rounded-2xl" />
               ))
             ) : (
-              featuredItems.map((item) => (
+              featuredItems.map((item: any) => (
                 <MenuCard key={item.id} item={item} />
               ))
             )}
