@@ -200,7 +200,8 @@ export class MemStorage implements IStorage {
 
     mockCategories.forEach((cat) => {
       const id = this.categoryId++;
-      this.categories.set(id, { ...cat, id });
+      const now = new Date();
+      this.categories.set(id, { ...cat, id, createdAt: now, updatedAt: now });
     });
 
     // Add mock menu items
@@ -257,12 +258,15 @@ export class MemStorage implements IStorage {
 
     mockMenuItems.forEach((item) => {
       const id = this.menuItemId++;
+      const now = new Date();
       this.menuItems.set(id, {
         ...item,
         id,
         dietary: [],
         isPopular: item.isPopular ?? false,
         available: true,
+        createdAt: now,
+        updatedAt: now,
       });
     });
   }
@@ -283,13 +287,15 @@ export class MemStorage implements IStorage {
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
     const id = this.categoryId++;
-    const category: Category = { ...insertCategory, id };
+    const now = new Date();
+    const category: Category = { ...insertCategory, id, createdAt: now, updatedAt: now };
     this.categories.set(id, category);
     return category;
   }
 
   async createMenuItem(insertItem: InsertMenuItem): Promise<MenuItem> {
     const id = this.menuItemId++;
+    const now = new Date();
     const dietary = normalizeStringArray((insertItem as any).dietary);
     const item: MenuItem = {
       ...insertItem,
@@ -297,6 +303,8 @@ export class MemStorage implements IStorage {
       dietary,
       isPopular: (insertItem as any).isPopular ?? false,
       available: (insertItem as any).available ?? true,
+      createdAt: now,
+      updatedAt: now,
     };
     this.menuItems.set(id, item);
     return item;
@@ -304,11 +312,13 @@ export class MemStorage implements IStorage {
 
   async createReservation(insertReservation: InsertReservation): Promise<Reservation> {
     const id = this.reservationId++;
+    const now = new Date();
     const reservation: Reservation = {
       ...insertReservation,
       id,
       status: "pending",
-      createdAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
       message: insertReservation.message || null,
     };
     this.reservations.set(id, reservation);
@@ -321,10 +331,12 @@ export class MemStorage implements IStorage {
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     const id = this.messageId++;
+    const now = new Date();
     const message: Message = {
       ...insertMessage,
       id,
-      createdAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
     this.messages.set(id, message);
     return message;
